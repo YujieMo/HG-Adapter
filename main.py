@@ -1,7 +1,7 @@
 from ruamel.yaml import YAML
 import os
 import argparse
-from models import adapter, adapter
+from models import train
 from utils import process
 
 def get_args(model_name, dataset, custom_key="", yaml_path=None) -> argparse.Namespace:
@@ -54,7 +54,7 @@ def main():
         custom_key="Node",  # Node: node classification Clu: clustering
     )
     if args.dataset in ["ACM", "Yelp", "DBLP", "Aminer"]:
-        embedder = adapter(args)
+        embedder = train(args)
     mac, mic = embedder.training()
 
 if __name__ == '__main__':
