@@ -1,6 +1,6 @@
-# Self-supervised Heterogeneous Graph Learning:  a Homophily and Heterogeneity View 
+# SelHG-Adapter: Improving Pre-Trained Heterogeneous Graph Neural Networks with Dual Adapters 
 
-This repository contains the reference code for the manuscript ``Self-supervised Heterogeneous Graph Learning:  a Homophily and Heterogeneity View" 
+This repository contains the reference code for the manuscript ``HG-Adapter: Improving Pre-Trained Heterogeneous Graph Neural Networks with Dual Adapters" 
 
 ## Contents
 
@@ -11,12 +11,13 @@ This repository contains the reference code for the manuscript ``Self-supervised
 
 ## Installation
 * pip install -r requirements.txt 
-* Unzip the datasets (the heterogeneous graph datasets can be found in ./dataset/, and the homogeneous graph datasets will be automatically downloaded from the public website)
+* Unzip the datasets (can be found in ./dataset/)
+* Unzip the pre-trained embedding (can be found in ./pre_trained_embedding)
 
 ## Preparation
 Important args:
-* `--use_pretrain` Test checkpoints to reproduce the results 
-* `--dataset` Heterogeneous graph: ACM, Yelp, DBLP, Aminer || Homogeneous graph: photo, computers, cs, physics
+* `--upload_pa` Test checkpoints to reproduce the results 
+* `--dataset` Heterogeneous graph: ACM, Yelp, DBLP, Aminer 
 * `--custom_key` Node: node classification
 
 ## Training
