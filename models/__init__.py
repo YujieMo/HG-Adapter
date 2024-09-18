@@ -1,2 +1,2 @@
-from .HGNN import adapter
+from .HGNN import train
 
