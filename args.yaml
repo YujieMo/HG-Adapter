@@ -32,7 +32,7 @@ SHGL-ACM-Node: &SHGL-ACM-Node
 
 SHGL-Yelp-Node: &SHGL-Yelp-Node
   <<: *SHGL
-  nb_epochs: 100
+  nb_epochs: 500
   lr: 0.01
   hid_units: 128
   out_ft: 128
