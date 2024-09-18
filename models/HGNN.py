@@ -17,12 +17,12 @@ class AvgReadout(nn.Module):
         return torch.mean(seq, 1)
 
 
-class adapter(embedder):
+class train(embedder):
     def __init__(self, args):
         embedder.__init__(self, args)
         self.args = args
-        self.prompt = prompt(self.args).to(self.args.device)
-        self.optimizer = torch.optim.Adam(self.prompt.parameters(), lr=self.args.lr)
+        self.adapter_net = adapter(self.args).to(self.args.device)
+        self.optimizer = torch.optim.Adam(self.adapter_net.parameters(), lr=self.args.lr)
 
     def training(self):
         self.features = self.features.to(self.args.device)
@@ -33,9 +33,9 @@ class adapter(embedder):
         best_val_mac = final_test_mac = final_test_mic = 0
         self.soft = torch.nn.Softmax(dim=1)
         for epoch in tqdm(range(self.args.nb_epochs)):
-            self.prompt.train()
+            self.adapter_net.train()
             self.optimizer.zero_grad()
-            prediction, A, loss_rec, loss_margin = self.prompt(self.features, hom_before.detach(),
+            prediction, A, loss_rec, loss_margin = self.adapter_net(self.features, hom_before.detach(),
                                                                 hom_after.detach(), het_after.detach(), het_before)
             embedding_train = prediction[self.train_idx]
             class_center = torch.stack([torch.mean(embedding_train[torch.argmax(self.new_labels[self.train_idx], dim=-1) == j], dim=0) for j in
@@ -52,8 +52,8 @@ class adapter(embedder):
             if self.args.custom_key == "Node":
                 if self.args.upload_pa == True:
                     logp = torch.load('saved_model/prediction_{}.pt'.format(self.args.dataset))
-                val_f1_macro, val_f1_micro = GNNNodeEva(logp, self.prompt, self.labels, self.val_idx)
-                test_f1_macro, test_f1_micro = GNNNodeEva(logp, self.prompt, self.labels, self.test_idx)
+                val_f1_macro, val_f1_micro = GNNNodeEva(logp, self.adapter_net, self.labels, self.val_idx)
+                test_f1_macro, test_f1_micro = GNNNodeEva(logp, self.adapter_net, self.labels, self.test_idx)
                 if val_f1_macro > best_val_mac:
                     best_val_mac = val_f1_macro
                     final_test_mac, final_test_mic = test_f1_macro, test_f1_micro
@@ -62,9 +62,9 @@ class adapter(embedder):
 
         return final_test_mac, final_test_mic
 
-class prompt(torch.nn.Module):
+class adapter(torch.nn.Module):
     def __init__(self, args):
-        super(prompt, self).__init__()
+        super(adapter, self).__init__()
         self.args = args
         self.bnn = nn.ModuleDict()
         self.fc = nn.ModuleDict()
@@ -74,26 +74,26 @@ class prompt(torch.nn.Module):
         for layer in range(self.args.num_layer):
             for i in range(args.prompt_num):
                 if args.bottleneck_dim > 0:
-                    self.prompter = torch.nn.Sequential(
+                    self.adapter = torch.nn.Sequential(
                         torch.nn.Linear(args.out_ft if i > 0 else args.out_ft, args.bottleneck_dim),
                         torch.nn.Linear(args.bottleneck_dim, args.out_ft),
                         torch.nn.ReLU(),
                     )
                 else:
-                    self.prompter = torch.nn.Sequential(
+                    self.adapter = torch.nn.Sequential(
                         torch.nn.Linear(args.out_ft, args.out_ft),  # args.hid_units
                     )
         for layer in range(self.args.num_layer):
             for i in range(args.prompt_num):
                 if args.bottleneck_dim_2 > 0:
-                    self.prompter_2 = torch.nn.Sequential(
+                    self.adapter_2 = torch.nn.Sequential(
                         torch.nn.Linear(args.hid_units if i > 0 else args.hid_units, args.bottleneck_dim_2),
 
                         torch.nn.Linear(args.bottleneck_dim_2, args.out_ft),
                         torch.nn.ReLU(),
                     )
                 else:
-                    self.prompter_2 = torch.nn.Sequential(
+                    self.adapter_2 = torch.nn.Sequential(
                         torch.nn.Linear(args.hid_units, args.out_ft),  # args.hid_units
                     )
         self.answering = torch.nn.Sequential(nn.Linear(self.args.out_ft * 2, self.args.nb_classes))
@@ -104,7 +104,7 @@ class prompt(torch.nn.Module):
     def forward(self, features, hom_before, hom_after, het_after, het_before):
         margin_loss = 0
         for i in range(self.args.prompt_num):
-            F_emb = self.prompter(hom_before)
+            F_emb = self.adapter(hom_before)
         mask = get_random_mask(features[0: self.args.node_num], 10, 10, self.args).to(self.args.device)
         loss_rec, adj = get_loss_reconstruction(self.model_dae, features[0: self.args.node_num], mask, hom_before,
                                                     self.args.dataset, self.args)
@@ -124,8 +124,8 @@ class prompt(torch.nn.Module):
         vec_list_1 = []
         vec_ori = []
         for i in range(len(vec)):
-            vec_list_1.append(self.prompter_2(vec[i]))
-            vec_ori.append(self.prompter_2(vec[i]))
+            vec_list_1.append(self.adapter_2(vec[i]))
+            vec_ori.append(self.adapter_2(vec[i]))
         h_combine_list = []
         for i, h in enumerate(vec_ori):
             h = self.w_list[i](h)
