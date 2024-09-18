@@ -50,8 +50,8 @@ def main():
     process.setup_seed(0)
     args = get_args(
         model_name="SHGL",
-        dataset="Yelp",  #Heterogeneous graph: ACM, Yelp, DBLP, Aminer || Homogeneous graph: photo, computers, cs, physics
-        custom_key="Node",  # Node: node classification Clu: clustering
+        dataset="ACM",  #Heterogeneous graph: ACM, Yelp, DBLP, Aminer
+        custom_key="Node",  # Node: node cilassfication 
     )
     if args.dataset in ["ACM", "Yelp", "DBLP", "Aminer"]:
         embedder = train(args)
