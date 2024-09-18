@@ -1,0 +1,89 @@
+DEFAULT: &DEFAULT
+  black_list: [7,8]
+  num_gpus_total: 4
+  num_gpus_to_use: 1
+  heads: 8
+  edge_sampling_ratio: 0.9
+  seed: 0
+  verbose: 2
+  save_model: False
+  save_plot: False
+  val_interval: 1
+
+SHGL: &SHGL
+  model_name: SHGL
+  <<: *DEFAULT
+
+SHGL-ACM-Node: &SHGL-ACM-Node
+  <<: *SHGL
+  nb_epochs: 200
+  lr: 0.0075
+  hid_units: 256
+  out_ft: 256
+  lamda: 0.001
+  eta: 0.01
+  alpha: 0.8
+  beta: 5
+  mu: 0.1
+  margin: 1
+  k: 20
+  bottleneck_dim: 8
+  bottleneck_dim_2: 16
+
+SHGL-Yelp-Node: &SHGL-Yelp-Node
+  <<: *SHGL
+  nb_epochs: 100
+  lr: 0.01
+  hid_units: 128
+  out_ft: 128
+  alpha: 0.5
+  beta: 1
+  eta: 4
+  mu: 1
+  lamda: 0.05
+  margin: 1
+  k: 5
+  dropout: 0.1
+  bottleneck_dim: 4
+  bottleneck_dim_2: 8
+
+SHGL-DBLP-Node: &SHGL-DBLP-Node
+  <<: *SHGL
+  nb_epochs: 1000
+  lr: 0.00025
+  hid_units: 256
+  out_ft: 512
+  lamda: 0.2
+  eta: 200
+  alpha: 0.1
+  beta: 0.1
+  mu: 1
+  margin: 1
+  k: 30
+  patience: 30
+  dropout: 0.005
+  bottleneck_dim: 2
+  bottleneck_dim_2: 4
+
+
+SHGL-Aminer-Node: &SHGL-Aminer-Node
+  <<: *SHGL
+  nb_epochs: 500
+  lr: 0.0005
+  hid_units: 256
+  out_ft: 256
+  margin: 1
+  lamda: 0.05
+  eta: 1
+  alpha: 0.1
+  beta: 1
+  mu: 10
+  k: 20
+  bottleneck_dim: 4
+  bottleneck_dim_2: 64
+
+
+
+
+
+

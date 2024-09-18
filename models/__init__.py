@@ -1,0 +1,2 @@
+from .HGNN import adapter
+
