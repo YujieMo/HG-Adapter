@@ -1,4 +1,4 @@
-# SelHG-Adapter: Improving Pre-Trained Heterogeneous Graph Neural Networks with Dual Adapters 
+# HG-Adapter: Improving Pre-Trained Heterogeneous Graph Neural Networks with Dual Adapters 
 
 This repository contains the reference code for the manuscript ``HG-Adapter: Improving Pre-Trained Heterogeneous Graph Neural Networks with Dual Adapters" 
 
